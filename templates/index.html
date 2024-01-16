@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Verification</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <style>
+        .fixed-size-image {
+            width: 300px; 
+            height: 300px;
+            object-fit: cover; 
+            border: 1px solid #ddd; 
+            border-radius: 4px;
+            margin-bottom: 15px; 
+        }
+        .result-text {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .match-true {
+            color: green;
+        }
+        .match-false {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Face Verification System</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form method="POST" enctype="multipart/form-data" class="mb-3">
+                    <div class="form-group">
+                        <label for="file1">Upload First Image:</label>
+                        <input type="file" class="form-control-file" name="file1" id="file1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="file2">Upload Second Image:</label>
+                        <input type="file" class="form-control-file" name="file2" id="file2" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Compare Faces</button>
+                    <button onclick="deleteImages()" class="btn btn-warning">Delete Images</button>
+                </form>
+
+                {% if match is not none %}
+                    <div class="results text-center">
+                        <h2>Results:</h2>
+                        <p class="result-text {{ 'match-true' if match else 'match-false' }}">Match: {{ match }}</p>
+                        <p class="result-text">Distance: <span class="badge badge-secondary">{{ distance }}</span></p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <img src="{{ url_for('static', filename='images/' + image1) }}" class="fixed-size-image" alt="Image 1">
+                            </div>
+                            <div class="col-md-6">
+                                <img src="{{ url_for('static', filename='images/' + image2) }}" class="img-fluid" alt="Image 2">
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function deleteImages() {
+            fetch('/delete-images', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'image1=' + encodeURIComponent('{{ image1 }}') + '&image2=' + encodeURIComponent('{{ image2 }}')
+            }).then(response => {
+                window.location.href = response.url;
+            }).catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
